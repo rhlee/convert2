@@ -22,14 +22,15 @@ def main(args):
       print "Can't find " + executable + " execuatble"
       exit(1)
   
-  match = re.match('(.*)\.(.*)', args[1])
+  match = re.match('(.*)\.(.*)', os.path.basename(args[1]))
   if not (match):
     print "unrecognised extension"
     exit (1)
   pathAbs = args[1]
   if not os.path.isabs(pathAbs):
     pathAbs = os.path.join(os.getcwd(), pathAbs)
-  print os.path.normpath(pathAbs)
+  if os.path.normpath(pathAbs) == (os.path.join(os.getcwd(), match.group(1)) + ".mp4"):
+    print "collision"
 
 
 def createTable(cursor):
