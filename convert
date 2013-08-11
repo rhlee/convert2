@@ -29,8 +29,10 @@ def main(args):
   pathAbs = args[1]
   if not os.path.isabs(pathAbs):
     pathAbs = os.path.join(os.getcwd(), pathAbs)
-  if os.path.normpath(pathAbs) == (os.path.join(os.getcwd(), match.group(1)) + ".mp4"):
-    print "collision"
+  outputName = os.path.join(os.getcwd(), match.group(1)) + ".mp4"
+  if os.path.normpath(pathAbs) == (outputName):
+    outputName = os.path.join(os.getcwd(), match.group(1)) + "_converted.mp4"
+  print outputName
 
 
 def createTable(cursor):
