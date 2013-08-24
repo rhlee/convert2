@@ -6,6 +6,7 @@ import re
 import os
 
 executables = ["ffprobe"]
+extensions = ["mkv", "mp4", "avi"]
 
 
 
@@ -22,7 +23,8 @@ def main(args):
       print "Can't find " + executable + " execuatble"
       exit(1)
   
-  match = re.match('(.*)\.(mp4|mkv|avi)', os.path.basename(args[1]))
+  match = re.match("(.*)\.(" + "|".join(extensions) + ")",
+    os.path.basename(args[1]))
   if not match:
     print "unrecognised extension"
     exit (1)
