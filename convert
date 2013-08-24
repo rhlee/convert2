@@ -5,7 +5,7 @@ import subprocess
 import re
 import os
 
-executables = ["ls", "date"]
+executables = ["ffprobe"]
 
 
 
@@ -16,8 +16,8 @@ def main(args):
   
   for executable in executables:
     try:
-      out, err = subprocess.Popen([executable], stdout = subprocess.PIPE,
-        stderr = subprocess.PIPE).communicate()
+      ffprobe = subprocess.Popen([executable], stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE)
     except OSError:
       print "Can't find " + executable + " execuatble"
       exit(1)
@@ -32,12 +32,26 @@ def main(args):
   outputName = os.path.join(os.getcwd(), match.group(1)) + ".mp4"
   if os.path.normpath(pathAbs) == (outputName):
     outputName = os.path.join(os.getcwd(), match.group(1)) + "_converted.mp4"
-  print outputName
+  
+  ffprobe = subprocess.Popen(
+    "ffprobe -show_streams -print_format compact -select_streams v".split(' ') +
+      [args[1]],
+    stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+  streams =  processCompactToAssoc(ffprobe)
+  print streams
 
 
-def createTable(cursor):
-  pass
+def processCompactToAssoc(ps):
+  lastLine = None
+  for line in ps.stdout:
+    lastLine = line
+  if lastLine is None:
+    return None
+  else:
+    return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
 
 if __name__ == "__main__":
   main(sys.argv)
+
+#TODO: file exists / auto
