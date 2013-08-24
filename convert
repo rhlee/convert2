@@ -41,6 +41,12 @@ def main(args):
   if stream is None:
     print "Error reading file"
     exit (1)
+  
+  if stream['r_frame_rate'] != stream['avg_frame_rate']:
+    print "frame rate error"
+    exit (1)
+  for k, v in stream.iteritems():
+    print k + ': ' + v
 
 
 def processCompactToAssoc(ps):
