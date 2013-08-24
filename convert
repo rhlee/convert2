@@ -7,13 +7,14 @@ import os
 
 executables = ["ffprobe"]
 extensions = ["mkv", "mp4", "avi"]
+tmpPath = "tmp"
 
 
 
 def main(args):
   if len(args) != 2:
     print "usage:"
-    exit (1)
+    cleanExit (1)
   
   for executable in executables:
     try:
@@ -21,13 +22,13 @@ def main(args):
         stderr = subprocess.PIPE)
     except OSError:
       print "Can't find " + executable + " execuatble"
-      exit(1)
+      cleanExit(1)
   
   match = re.match("(.*)\.(" + "|".join(extensions) + ")",
     os.path.basename(args[1]))
   if not match:
     print "unrecognised extension"
-    exit (1)
+    cleanExit(1)
   pathAbs = args[1]
   if not os.path.isabs(pathAbs):
     pathAbs = os.path.join(os.getcwd(), pathAbs)
@@ -42,13 +43,14 @@ def main(args):
   stream =  processCompactToAssoc(ffprobe)
   if stream is None:
     print "Error reading file"
-    exit (1)
+    cleanExit(1)
   
   if stream['r_frame_rate'] != stream['avg_frame_rate']:
     print "frame rate error"
     exit (1)
   for k, v in stream.iteritems():
     print k + ': ' + v
+  cleanExit(0)
 
 
 def processCompactToAssoc(ps):
@@ -60,6 +62,12 @@ def processCompactToAssoc(ps):
   else:
     return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
+def cleanExit(exitCode):
+  try:
+    os.removedirs(tmpPath)
+  except OSError:
+    pass
+  exit(exitCode)
 
 if __name__ == "__main__":
   main(sys.argv)
