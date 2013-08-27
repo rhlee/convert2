@@ -70,7 +70,10 @@ def processCompactToAssoc(ps):
     return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
 def getFfmpegAudioOption(inputPath, stream):
-  pass 
+  pass
+
+def boldPrint(message):
+  print "\x1b[1;37m" + message + "\x1b[0m"
 
 def cleanExit(exitCode):
   try:
