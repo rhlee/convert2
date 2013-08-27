@@ -65,6 +65,7 @@ def getFfmpegAudioOption(inputPath, stream):
   if stream['r_frame_rate'] != stream['avg_frame_rate']:
     print "frame rate error"
     exit (1)
+  boldPrint("fps: " + stream["r_frame_rate"])
 
 def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
