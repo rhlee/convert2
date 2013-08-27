@@ -40,7 +40,7 @@ def main(args):
     "ffprobe -show_streams -print_format compact -select_streams v".split(' ') +
       [args[1]],
     stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-  stream =  processCompactToAssoc(ffprobe)
+  stream = processCompactToAssoc(ffprobe)
   if stream is None:
     print "Error reading file"
     cleanExit(1)
@@ -48,8 +48,15 @@ def main(args):
   if stream['r_frame_rate'] != stream['avg_frame_rate']:
     print "frame rate error"
     exit (1)
-  for k, v in stream.iteritems():
-    print k + ': ' + v
+  
+  sys.stdout.write("\x1b[1;37m")
+  print "Frame rate: " + stream['avg_frame_rate']
+  print "Width: " + stream['width']
+  
+  print getFfmpegAudioOption(args[1], stream)
+   
+#  for k, v in stream.iteritems():
+#    print k + ': ' + v
   cleanExit(0)
 
 
@@ -62,6 +69,9 @@ def processCompactToAssoc(ps):
   else:
     return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
+def getFfmpegAudioOption(inputPath, stream):
+  pass 
+
 def cleanExit(exitCode):
   try:
     os.removedirs(tmpPath)
@@ -69,5 +79,8 @@ def cleanExit(exitCode):
     pass
   exit(exitCode)
 
+
 if __name__ == "__main__":
   main(sys.argv)
+
+#frame rate tolerance
