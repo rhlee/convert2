@@ -45,14 +45,6 @@ def main(args):
     print "Error reading file"
     cleanExit(1)
   
-  if stream['r_frame_rate'] != stream['avg_frame_rate']:
-    print "frame rate error"
-    exit (1)
-  
-  sys.stdout.write("\x1b[1;37m")
-  print "Frame rate: " + stream['avg_frame_rate']
-  print "Width: " + stream['width']
-  
   print getFfmpegAudioOption(args[1], stream)
    
 #  for k, v in stream.iteritems():
@@ -70,7 +62,9 @@ def processCompactToAssoc(ps):
     return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
 def getFfmpegAudioOption(inputPath, stream):
-  pass
+  if stream['r_frame_rate'] != stream['avg_frame_rate']:
+    print "frame rate error"
+    exit (1)
 
 def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
