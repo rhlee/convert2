@@ -4,11 +4,12 @@ import sys
 import subprocess
 import re
 import os
+import fractions
 
 executables = ["ffprobe"]
 extensions = ["mkv", "mp4", "avi"]
 tmpPath = "tmp"
-
+fpsTolerance = 0.001
 
 
 def main(args):
@@ -66,6 +67,9 @@ def getFfmpegAudioOption(inputPath, stream):
     print "frame rate error"
     exit (1)
   boldPrint("fps: " + stream["r_frame_rate"])
+  fpsList = [int(n) for n in stream["r_frame_rate"].split('/')]
+  fps = fractions.Fraction(fpsList[0], fpsList[1])
+  print fps
 
 def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
