@@ -69,7 +69,8 @@ def getFfmpegAudioOption(inputPath, stream):
   boldPrint("fps: " + stream["r_frame_rate"])
   fpsList = [int(n) for n in stream["r_frame_rate"].split('/')]
   fps = fractions.Fraction(fpsList[0], fpsList[1])
-  print fps
+  if ((fps.numerator == 24000) and (fps.denominator == 1001)):
+    boldPrint("exact NTSC frame rate detected")
 
 def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
