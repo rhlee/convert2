@@ -62,7 +62,7 @@ def processCompactToAssoc(ps):
     return dict(tuple(pair.split('=')) for pair in lastLine.split('|')[1:])
 
 def getFfmpegAudioOption(inputPath, stream):
-  if stream['r_frame_rate'] != stream['avg_frame_rate']:
+  if stream["r_frame_rate"] != stream["avg_frame_rate"]:
     boldPrint("frame rate error")
     exit (1)
   boldPrint("fps: " + stream["r_frame_rate"])
@@ -76,10 +76,16 @@ def getFfmpegAudioOption(inputPath, stream):
       exit (1)
     boldPrint(
       "Non-exact frame rate detected, counting frames and timestamps ...")
-  #fps goes here
+    ffprobe = popen(
+"ffprobe -show_frames -print_format compact -select_streams v".split(' ') +
+      [inputPath])
+    frame = processCompactToAssoc(ffprobe)
+    fps = float(frame["coded_picture_number"]) / float(frame["pkt_pts_time"])
+  print fps
 
 def popen(argList, echo = False):
-  return subprocess.Popen(argList, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+  return subprocess.Popen(argList, stdout = subprocess.PIPE,
+    stderr = subprocess.PIPE)
 
 def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
