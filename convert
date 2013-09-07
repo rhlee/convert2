@@ -5,8 +5,9 @@ import subprocess
 import re
 import os
 import fractions
+import xml.dom.minidom
 
-executables = ["ffprobe"]
+executables = ["ffprobe", "mkvextract"]
 extensions = ["mkv", "mp4", "avi"]
 tmpPath = "tmp"
 fpsTolerance = 0.001
@@ -74,6 +75,7 @@ def getFfmpegAudioOption(inputPath, stream):
     if (abs(float(fps) - (float(24000) / float(1001))) > fpsTolerance):
       boldPrint("frmae rate is not within acceptable range")
       exit (1)
+    #cache?
     boldPrint(
       "Non-exact frame rate detected, counting frames and timestamps ...")
     ffprobe = popen(
@@ -82,6 +84,13 @@ def getFfmpegAudioOption(inputPath, stream):
     frame = processCompactToAssoc(ffprobe)
     fps = float(frame["coded_picture_number"]) / float(frame["pkt_pts_time"])
   print fps
+  
+  if inputPath.split('.')[-1].lower() == 'mkv':
+    print 'mkv'
+    mkvextract = popen("mkvextract chapters".split(' ') + [inputPath])
+    chapters = ''.join(list(mkvextract.stdout))
+    print chapters
+    
 
 def popen(argList, echo = False):
   return subprocess.Popen(argList, stdout = subprocess.PIPE,
