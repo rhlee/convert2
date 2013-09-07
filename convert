@@ -88,7 +88,7 @@ def getFfmpegAudioOption(inputPath, stream):
   if inputPath.split('.')[-1].lower() == 'mkv':
     print 'mkv'
     mkvextract = popen("mkvextract chapters".split(' ') + [inputPath])
-    chapters = ''.join(list(mkvextract.stdout))
+    chapters, stderr = mkvextract.communicate()
     print chapters
     
 
