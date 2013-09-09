@@ -86,10 +86,12 @@ def getFfmpegAudioOption(inputPath, stream):
   print fps
   
   if inputPath.split('.')[-1].lower() == 'mkv':
-    print 'mkv'
     mkvextract = popen("mkvextract chapters".split(' ') + [inputPath])
-    chapters, stderr = mkvextract.communicate()
-    print chapters
+    chaptersXml, stderr = mkvextract.communicate()
+    chaptersDom = xml.dom.minidom.parseString(chaptersXml)
+    linked = chaptersDom.getElementsByTagName("ChapterSegmentUID")
+    if linkedSegments:
+      boldPrint("Linked")
     
 
 def popen(argList, echo = False):
