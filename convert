@@ -93,18 +93,19 @@ def getFfmpegAudioOption(inputPath, stream):
     mkvRe = re.compile("\.mkv$")
     segmentUidRe = re.compile("Segment UID")
     if linked:
+      segment = {}
       boldPrint("Linked")
       dir = os.path.dirname(inputPath)
       for file in os.listdir(dir):
         file = os.path.join(dir, file)
         if mkvRe.search(file) and os.path.isfile(file):
-          print file
           mkvinfo = popen(["mkvinfo", file])
           for line in mkvinfo.stdout:
             if segmentUidRe.search(line):
               break
-          print ''.join([byte[2:4] for byte in line.split(':')[1].strip().split(' ')])
-
+          segment[''.join([byte[2:4] for byte in line.split(':')[1]
+            .strip().split(' ')])] = file
+      print segment
 
 def popen(argList, echo = False):
   return subprocess.Popen(argList, stdout = subprocess.PIPE,
