@@ -92,12 +92,19 @@ def getFfmpegAudioOption(inputPath, stream):
     linked = chaptersDom.getElementsByTagName("ChapterSegmentUID")
     if linked:
       boldPrint("Linked")
-      mkvinfo = popen(["mkvinfo", inputPath])
-      for line in mkvinfo.stdout:
-        if re.search("Segment UID", line):
-          break
-      print ''.join([byte[2:4] for byte in line.split(':')[1].strip().split(' ')])
-    
+      dir = os.path.dirname(inputPath)
+      for file in os.listdir(dir):
+        # compile
+        file = os.path.join(dir, file)
+        if re.search("\.mkv$", file) and os.path.isfile(file):
+          print file
+          mkvinfo = popen(["mkvinfo", file])
+          for line in mkvinfo.stdout:
+            # compile
+            if re.search("Segment UID", line):
+              break
+          print ''.join([byte[2:4] for byte in line.split(':')[1].strip().split(' ')])
+
 
 def popen(argList, echo = False):
   return subprocess.Popen(argList, stdout = subprocess.PIPE,
