@@ -7,7 +7,7 @@ import os
 import fractions
 import xml.dom.minidom
 
-executables = ["ffprobe", "mkvextract"]
+executables = ["ffprobe", "mkvextract", "mkvinfo"]
 extensions = ["mkv", "mp4", "avi"]
 tmpPath = "tmp"
 fpsTolerance = 0.001
@@ -90,8 +90,13 @@ def getFfmpegAudioOption(inputPath, stream):
     chaptersXml, stderr = mkvextract.communicate()
     chaptersDom = xml.dom.minidom.parseString(chaptersXml)
     linked = chaptersDom.getElementsByTagName("ChapterSegmentUID")
-    if linkedSegments:
+    if linked:
       boldPrint("Linked")
+      mkvinfo = popen(["mkvinfo", inputPath])
+      for line in mkvinfo.stdout:
+        if re.search("Segment UID", line):
+          break
+      print ''.join([byte[2:4] for byte in line.split(':')[1].strip().split(' ')])
     
 
 def popen(argList, echo = False):
