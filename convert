@@ -93,7 +93,7 @@ def getFfmpegAudioOption(inputPath, stream):
     mkvRe = re.compile("\.mkv$")
     segmentUidRe = re.compile("Segment UID")
     if linked:
-      segment = {}
+      segmentDict = {}
       boldPrint("Linked")
       dir = os.path.dirname(inputPath)
       for file in os.listdir(dir):
@@ -103,9 +103,22 @@ def getFfmpegAudioOption(inputPath, stream):
           for line in mkvinfo.stdout:
             if segmentUidRe.search(line):
               break
-          segment[''.join([byte[2:4] for byte in line.split(':')[1]
-            .strip().split(' ')])] = file
-      print segment
+          uid = ''.join([byte[2:4] for byte in line.split(':')[1]
+            .strip().split(' ')])
+          segmentDict[uid] = file
+          if file == inputPath:
+            mainUid = uid
+      boldPrint("main uid: " + mainUid)
+      atoms = chaptersDom.getElementsByTagName("ChapterAtom")
+      for atom in atoms:
+        uid = None
+        for node in atom.childNodes:
+          if (node.__class__ == xml.dom.minidom.Element) \
+            and (node.tagName == "ChapterSegmentUID"):
+            uid = node.childNodes[0].data
+        if not uid:
+          uid = mainUid
+        print uid
 
 def popen(argList, echo = False):
   return subprocess.Popen(argList, stdout = subprocess.PIPE,
