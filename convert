@@ -46,6 +46,8 @@ def main(args):
     boldPrint("Error reading file")
     cleanExit(1)
   
+  os.makedirs(tmpPath)
+  
   print getFfmpegAudioOption(args[1], stream)
    
 #  for k, v in stream.iteritems():
@@ -128,7 +130,7 @@ def getFfmpegAudioOption(inputPath, stream):
       uniqueUids = list(set([chapter.uid for chapter in chapters]))
       segments = {}
       for uid in uniqueUids:
-        segments[uid] = Segment(uid)
+        segments[uid] = Segment(uid, uidDict[uid], tmpPath)
       print segments
 
 
@@ -155,9 +157,11 @@ class Chapter(object):
   __slots__ = ('uid', 'start', 'end')
 
 class Segment(object):
-  def __init__(self, uid):
+  def __init__(self, uid, file, tmpPath):
     self.time = 0
-    pass
+    self.file = os.path.join(tmpPath, uid + ".wav")
+    subprocess.call(["mplayer", "-novideo", file, "-ao", "pcm:file=" + self.file])
+    
 
 
 if __name__ == "__main__":
