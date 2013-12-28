@@ -121,10 +121,13 @@ def getFfmpegAudioOption(inputPath, stream):
             if (tagName == "ChapterSegmentUID"):
               chapter.uid = data
             elif (tagName == "ChapterTimeStart"):
-              chapter.start = data
+              chapter.start = timeToSeconds(data)
             elif (tagName == "ChapterTimeEnd"):
-              chapter.end = data
+              chapter.end = timeToSeconds(data)
         chapters.append(chapter)
+      for chapter in chapters:
+        print chapter.start
+        print chapter.end
 
 
 def popen(argList, echo = False):
@@ -141,11 +144,17 @@ def cleanExit(exitCode):
     pass
   exit(exitCode)
 
+def timeToSeconds(time):
+  hms = time.split(':')
+  return (int(hms[0]) * 3600) + (int(hms[1]) * 60) + float(hms[2])
+
 
 class Chapter(object):
   __slots__ = ('uid', 'start', 'end')
 
 class Segment(object):
+  uidList = []
+
   def __init__(self, segmentUid, segmentDict = None):
     pass
 
