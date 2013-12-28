@@ -93,7 +93,7 @@ def getFfmpegAudioOption(inputPath, stream):
     mkvRe = re.compile("\.mkv$")
     segmentUidRe = re.compile("Segment UID")
     if linked:
-      segmentDict = {}
+      uidDict = {}
       boldPrint("Linked")
       dir = os.path.dirname(inputPath)
       for file in os.listdir(dir):
@@ -105,7 +105,7 @@ def getFfmpegAudioOption(inputPath, stream):
               break
           uid = ''.join([byte[2:4] for byte in line.split(':')[1]
             .strip().split(' ')])
-          segmentDict[uid] = file
+          uidDict[uid] = file
           if file == inputPath:
             mainUid = uid
       boldPrint("main uid: " + mainUid)
@@ -155,7 +155,7 @@ class Chapter(object):
 class Segment(object):
   uidList = []
 
-  def __init__(self, segmentUid, segmentDict = None):
+  def __init__(self, uid, uidDict = None):
     pass
 
 
