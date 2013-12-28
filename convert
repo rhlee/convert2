@@ -110,18 +110,22 @@ def getFfmpegAudioOption(inputPath, stream):
             mainUid = uid
       boldPrint("main uid: " + mainUid)
       atoms = chaptersDom.getElementsByTagName("ChapterAtom")
-      usedSegments = []
+      chapters = []
       for atom in atoms:
-        uid = None
+        chapter = Chapter()
+        chapter.uid = mainUid
         for node in atom.childNodes:
-          if (node.__class__ == xml.dom.minidom.Element) \
-            and (node.tagName == "ChapterSegmentUID"):
-            uid = node.childNodes[0].data.encode("ascii")
-        if not uid:
-          uid = mainUid
-        usedSegments.append(uid)
-      usedSegments = list(set(usedSegments))
-      print usedSegments
+          if (node.__class__ == xml.dom.minidom.Element):
+            tagName = node.tagName
+            data = node.childNodes[0].data.encode("ascii")
+            if (tagName == "ChapterSegmentUID"):
+              chapter.uid = data
+            elif (tagName == "ChapterTimeStart"):
+              chapter.start = data
+            elif (tagName == "ChapterTimeEnd"):
+              chapter.end = data
+        chapters.append(chapter)
+
 
 def popen(argList, echo = False):
   return subprocess.Popen(argList, stdout = subprocess.PIPE,
@@ -136,6 +140,14 @@ def cleanExit(exitCode):
   except OSError:
     pass
   exit(exitCode)
+
+
+class Chapter(object):
+  __slots__ = ('uid', 'start', 'end')
+
+class Segment(object):
+  def __init__(self, segmentUid, segmentDict = None):
+    pass
 
 
 if __name__ == "__main__":
