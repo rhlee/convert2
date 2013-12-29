@@ -6,6 +6,7 @@ import re
 import os
 import fractions
 import xml.dom.minidom
+import struct
 
 executables = ["ffprobe", "mkvextract", "mkvinfo"]
 extensions = ["mkv", "mp4", "avi"]
@@ -46,7 +47,7 @@ def main(args):
     boldPrint("Error reading file")
     cleanExit(1)
   
-  os.makedirs(tmpPath)
+  #os.makedirs(tmpPath)
   
   print getFfmpegAudioOption(args[1], stream)
    
@@ -155,12 +156,16 @@ def timeToSeconds(time):
 
 class Chapter(object):
   __slots__ = ('uid', 'start', 'end')
-
+#needs destructor
 class Segment(object):
   def __init__(self, uid, file, tmpPath):
-    self.time = 0
-    self.file = os.path.join(tmpPath, uid + ".wav")
-    subprocess.call(["mplayer", "-novideo", file, "-ao", "pcm:file=" + self.file])
+    self.sample = 0
+    self.filename = os.path.join(tmpPath, uid + ".wav")
+    #subprocess.call(["mplayer", "-novideo", file, "-ao", "pcm:file=" + self.file])
+    header = bytearray(44)
+    self.file = open(self.filename, 'rb')
+    self.file.readinto(header)
+    self.sampleRate, self.bps = struct.unpack("24xI6xH8x", header)
     
 
 
