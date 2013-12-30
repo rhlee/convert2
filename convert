@@ -129,10 +129,24 @@ def getFfmpegAudioOption(inputPath, stream):
               chapter.end = timeToSeconds(data)
         chapters.append(chapter)
       uniqueUids = list(set([chapter.uid for chapter in chapters]))
+      
+      uidBoundary = {}
+      continuousChapters = []
+      for chapter in reversed(chapters):
+        uid = chapter.uid
+        continuousChapter = Chapter()
+        continuousChapter.uid = uid
+        if uid in uidBoundary:
+          continuousChapter.end = uidBoundary[uid]
+        else:
+          continuousChapter.end = chapter.end
+        uidBoundary[uid] = chapter.start
+        continuousChapters.append(continuousChapters)
+      continuousChapters.reverse()
+      
       segments = {}
       for uid in uniqueUids:
         segments[uid] = Segment(uid, uidDict[uid], tmpPath)
-      print segments
 
 
 def popen(argList, echo = False):
