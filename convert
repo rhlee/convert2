@@ -182,18 +182,22 @@ class Segment(object):
   def __init__(self, uid, file, tmpPath):
     self.position = 0
     self.filename = os.path.join(tmpPath, uid + ".wav")
-    subprocess.call(["mplayer", "-novideo", "--no-ordered-chapters", file, "-ao", "pcm:file=" + self.filename])
+    #subprocess.call(["mplayer", "-novideo", "--no-ordered-chapters", file, "-ao", "pcm:file=" + self.filename])
     header = bytearray(44)
     self.file = open(self.filename, 'rb')
     self.file.readinto(header)
-    sampleRate, bytesPerSample = struct.unpack("24xI6xH8x", header)
-    self.bytesPerSecond = sampleRate * bytesPerSample
+    channels, sampleRate, bitsPerSample = struct.unpack("22xHI6xH8x", header)
+    print sampleRate
+    print bitsPerSample
+    self.bytesPerSecond = sampleRate * bitsPerSample / 8 * channels
+    print "bps: " + str(self.bytesPerSecond)
   
   def readTo(self, time, file):
     buffer = bytearray(Segment.bufferSize)
     remainingBytes = int((time * self.bytesPerSecond) + 0.5) - self.position
+    print remainingBytes
     while remainingBytes > Segment.bufferSize:
-      print self.file.readinto(buffer)
+      self.file.readinto(buffer)
       file.write(buffer)
       remainingBytes -= Segment.bufferSize
       self.position += Segment.bufferSize
