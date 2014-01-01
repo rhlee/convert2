@@ -7,6 +7,7 @@ import os
 import fractions
 import xml.dom.minidom
 import struct
+import shutil
 
 executables = ["ffprobe", "mkvextract", "mkvinfo"]
 extensions = ["mkv", "mp4", "avi"]
@@ -47,13 +48,13 @@ def main(args):
     boldPrint("Error reading file")
     cleanExit(1)
   
-  #os.makedirs(tmpPath)
+  os.makedirs(tmpPath)
   
   print getFfmpegAudioOption(args[1], stream)
    
 #  for k, v in stream.iteritems():
 #    print k + ': ' + v
-#  cleanExit(0)
+  cleanExit(0)
 
 
 def processCompactToAssoc(ps):
@@ -162,10 +163,7 @@ def boldPrint(message):
   print "\x1b[1;37m" + message + "\x1b[0m"
 
 def cleanExit(exitCode):
-  try:
-    os.removedirs(tmpPath)
-  except OSError:
-    pass
+  shutil.rmtree(tmpPath)
   exit(exitCode)
 
 def timeToSeconds(time):
@@ -182,20 +180,16 @@ class Segment(object):
   def __init__(self, uid, file, tmpPath):
     self.position = 0
     self.filename = os.path.join(tmpPath, uid + ".wav")
-    #subprocess.call(["mplayer", "-novideo", "--no-ordered-chapters", file, "-ao", "pcm:file=" + self.filename])
+    subprocess.call(["mplayer", "-novideo", "--no-ordered-chapters", file, "-ao", "pcm:file=" + self.filename])
     header = bytearray(44)
     self.file = open(self.filename, 'rb')
     self.file.readinto(header)
     channels, sampleRate, bitsPerSample = struct.unpack("22xHI6xH8x", header)
-    print sampleRate
-    print bitsPerSample
     self.bytesPerSecond = sampleRate * bitsPerSample / 8 * channels
-    print "bps: " + str(self.bytesPerSecond)
   
   def readTo(self, time, file):
     buffer = bytearray(Segment.bufferSize)
     remainingBytes = int((time * self.bytesPerSecond) + 0.5) - self.position
-    print remainingBytes
     while remainingBytes > Segment.bufferSize:
       self.file.readinto(buffer)
       file.write(buffer)
