@@ -141,12 +141,17 @@ def getFfmpegAudioOption(inputPath, stream):
         else:
           continuousChapter.end = chapter.end
         uidBoundary[uid] = chapter.start
-        continuousChapters.append(continuousChapters)
+        continuousChapters.append(chapter)
       continuousChapters.reverse()
       
       segments = {}
       for uid in uniqueUids:
         segments[uid] = Segment(uid, uidDict[uid], tmpPath)
+      
+      outputFilename = os.path.join(tmpPath, "output.wav")
+      outputFile = open(outputFilename, "wb")
+      for chapter in continuousChapters:
+        segments[chapter.uid].readTo(chapter.end, outputFile)
 
 
 def popen(argList, echo = False):
@@ -172,15 +177,30 @@ class Chapter(object):
   __slots__ = ('uid', 'start', 'end')
 #needs destructor
 class Segment(object):
+  bufferSize = 0x100000
+  
   def __init__(self, uid, file, tmpPath):
-    self.sample = 0
+    self.position = 0
     self.filename = os.path.join(tmpPath, uid + ".wav")
-    #subprocess.call(["mplayer", "-novideo", file, "-ao", "pcm:file=" + self.file])
+    subprocess.call(["mplayer", "-novideo", "--no-ordered-chapters", file, "-ao", "pcm:file=" + self.filename])
     header = bytearray(44)
     self.file = open(self.filename, 'rb')
     self.file.readinto(header)
-    self.sampleRate, self.bps = struct.unpack("24xI6xH8x", header)
-    
+    sampleRate, bytesPerSample = struct.unpack("24xI6xH8x", header)
+    self.bytesPerSecond = sampleRate * bytesPerSample
+  
+  def readTo(self, time, file):
+    buffer = bytearray(Segment.bufferSize)
+    remainingBytes = int((time * self.bytesPerSecond) + 0.5) - self.position
+    while remainingBytes > Segment.bufferSize:
+      print self.file.readinto(buffer)
+      file.write(buffer)
+      remainingBytes -= Segment.bufferSize
+      self.position += Segment.bufferSize
+    buffer = bytearray(remainingBytes)
+    self.file.readinto(buffer)
+    file.write(buffer)
+    self.position += remainingBytes
 
 
 if __name__ == "__main__":
